@@ -1,0 +1,4449 @@
+// 1 Write a program to use fork system call to create 5 child processes and assign 5 operations
+// to childs.
+
+
+
+
+
+
+// 1. Write a program to use fork system call to create 5 child processes and assign 5 operations
+// to childs.
+#include<bits/stdc++.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+using namespace std;
+
+void work(int i){
+    if(i==1){
+        cout<<"Child 1"<<endl;
+    }else if(i==2)cout<<"Child 2"<<endl;
+    else if(i==3)cout<<"Child 3"<<endl;
+    else if(i==4)cout<<"Child 4"<<endl;
+    else cout<<"Child 5"<<endl;
+}
+
+int main(){
+
+
+    pid_t child_id;
+    for(int i=1;i<=5;i++){
+        child_id = fork();
+        if(child_id==0){
+            work(i);
+            return 0;
+        }else if(child_id<0){
+            cout<<"Fork Failed"<<endl;
+            return 1;
+        }
+    }
+
+    for(int i=1;i<=5;i++){
+        cout<<wait(NULL)<<" ";
+    }
+    return 0;
+    
+}
+
+
+
+
+// 2. Write a program to use vfork system call(login name by child and password by parent)
+
+#include <iostream>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+using namespace std;
+
+int main() {
+    pid_t pid;
+    pid=fork();
+    if(pid<0){
+        cout<<"Fork Failed"<<endl;
+        exit(1);
+    }else if(pid==0){
+        string username;
+        cout<<"Enter your username : ";
+        cin>>username;
+        return 0;
+    }else {
+        wait(NULL);
+        string password;
+        cout<<"Enter your password : ";
+        cin>>password;
+        cout<<"Login Successful"<<endl;
+    }
+
+    return 0;
+}
+
+
+
+
+
+// 3. Write a program to open any application using fork sysem call.
+
+
+
+
+//3. Write a program to open any application using fork sysem call.
+
+#include <iostream>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+using namespace std;
+
+int main() {
+    pid_t pid = fork();
+    if(pid<0){
+        cout<<"Fork failed"<<endl;
+        return 1;
+    }else if(pid==0){//child process
+       cout<<"Executing Child processs : ( Opening Brave Browser )"<<endl;
+       sleep(2);
+       execlp("brave","brave");
+       return 0;
+    }else{
+        cout<<"Parent process waiting for child process completion"<<endl;
+        wait(NULL);
+        cout<<"Parent process finished"<<endl;
+    }
+
+    
+
+    return 0;
+}
+
+
+
+
+
+
+//4. Write a program to open any application using vfork sysem call.
+
+
+
+
+//4. Write a program to open any application using vfork sysem call.
+
+
+#include <iostream>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+/*
+
+The difference in behavior between fork() and vfork() is due to how they 
+handle the creation of the child process.
+
+1) fork() :
+creates a separate copy of the parent process.
+This means that after the fork() call, both the parent and child processes are running independently.
+The OS decides which process runs first based on its scheduling algorithm. 
+Therefore, it's not guaranteed which process will run first, the parent or the child.
+
+
+2) vfork() :
+does not create a separate copy of the parent's address space. 
+Instead, it suspends the parent process until the child process calls _exit() or exec(). 
+This means that the child process runs in the address space of the parent. 
+Since the parent is suspended until the child process completes, 
+the child process will always run first in a vfork() scenario.
+
+
+*/
+using namespace std;
+
+int main() {
+    pid_t pid = vfork();
+    if(pid<0){
+        cout<<"Fork failed"<<endl;
+        return 1;
+    }else if(pid==0){//child process
+        cout<<"Executing Child processs : ( Opening Brave Browser )"<<endl;
+        sleep(2);
+       execlp("nano","nano",NULL);
+       return 0;
+    }else{
+        cout<<"Parent process waiting for child process completion"<<endl;
+        wait(NULL);
+        cout<<"Parent process finished"<<endl;
+    }
+
+    
+
+    return 0;
+}
+
+
+
+
+
+//5. Write a program to demonstrate the wait use with fork sysem call.
+
+
+
+//5. Write a program to demonstrate the wait use with fork sysem call.
+#include <iostream>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+using namespace std;
+
+int main() {
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        cerr << "Fork failed" << endl;
+        return 1;
+    } else if (pid == 0) { // Child process
+        cout << "Child process executing..." << endl;
+        sleep(2); // Simulating some work in the child process
+        cout << "Child process completed" << endl;
+        return 0;
+    } else { // Parent process
+        cout << "Parent process waiting for child process to complete..." << endl;
+        wait(NULL); // Wait for the child process to finish
+        cout << "Parent process completed" << endl;
+    }
+
+    return 0;
+}
+
+
+
+
+
+
+
+//6. Write a program to demonstrate the variations exec system call.
+
+
+
+//6. Write a program to demonstrate the variations exec system call.
+#include <iostream>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+using namespace std;
+
+int main() {
+    pid_t pid;
+
+    // execl
+    pid = fork();
+    if(pid<0){
+        cout<<"Fork Failed "<<endl;
+        return 1;
+    }
+    else if (pid == 0) {
+        execl("/bin/ls", "ls", "-l", NULL);
+        perror("execl");
+        _exit(1);
+    }
+    wait(NULL);
+
+    // execv
+    pid = fork();
+    if(pid<0){
+        cout<<"Fork Failed "<<endl;
+        return 1;
+    }
+    else if (pid == 0) {
+        char *args[] = {"ls", "-l", NULL};
+        execv("/bin/ls", args);
+        perror("execv");
+        _exit(1);
+    }
+    wait(NULL);
+
+    // execle
+    pid = fork();
+    if(pid<0){
+        cout<<"Fork Failed "<<endl;
+        return 1;
+    }
+    else if (pid == 0) {
+        char *envp[] = {NULL};
+        execle("/bin/ls", "ls", "-l", NULL, envp);
+        perror("execle");
+        _exit(1);
+    }
+    wait(NULL);
+
+    // execve
+    pid = fork();
+    if(pid<0){
+        cout<<"Fork Failed "<<endl;
+        return 1;
+    }
+    else if (pid == 0) {
+        char *args[] = {"ls", "-l", NULL};
+        char *envp[] = {NULL};
+        execve("/bin/ls", args, envp);
+        perror("execve");
+        _exit(1);
+    }
+    wait(NULL);
+
+    // execlp
+    pid = fork();
+    if(pid<0){
+        cout<<"Fork Failed "<<endl;
+        return 1;
+    }
+    else if (pid == 0) {
+        execlp("ls", "ls", "-l", NULL);
+        perror("execlp");
+        _exit(1);
+    }
+    wait(NULL);
+
+    // execvp
+    pid = fork();
+    if(pid<0){
+        cout<<"Fork Failed "<<endl;
+        return 1;
+    }
+    else if (pid == 0) {
+        char *args[] = {"ls", "-l", NULL};
+        execvp("ls", args);
+        perror("execvp");
+        _exit(1);
+    }
+    wait(NULL);
+
+    return 0;
+}
+
+
+
+
+
+
+/*
+
+
+Cleanup Actions: When you use exit, it not only terminates the process but also performs cleanup actions such as flushing I/O buffers and closing files. This behavior may not be desired in the context of exec calls where you want the process to terminate immediately without any additional actions.
+Function Calls: exit will also invoke any functions registered with atexit or on_exit before terminating the process. If you want to bypass these registered functions, _exit should be used instead.
+In general, when using exec calls, it's more common to use _exit to ensure that the child process terminates immediately and does not execute any additional code from the original program after the exec call.
+
+
+*/
+
+
+
+// 7. Write a program to demonstrate the exit system call use with wait & fork sysem call.
+
+#include <iostream>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+using namespace std;
+
+int main(){
+    pid_t pid;
+    pid = fork();
+
+    if(pid<0){
+        cout<<"Fork Failed"<<endl;
+        return 1;
+    }else if(pid==0){
+        cout<<"Chid process is running "<<endl;
+        sleep(2);
+        _exit(50);
+    }else{
+        cout<<"Parent waiting for child "<<endl;
+        int status;
+        wait(&status);
+        if(WIFEXITED(status)){
+            cout<<"Child exited with status : "<<WEXITSTATUS(status)<<endl;
+
+        }else cerr << "Child process did not exit normally" << endl;
+        cout<<"Parent Completed it's execution"<<endl;
+    }
+    return 0;
+}
+
+assignment 08 two codes open in two terminals
+// Write a program to demonstrate the kill system call to send signals between unrelated process
+
+code of sender 
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+
+int main(int argc,char **argv) {
+    int  receiver_pid = atoi(argv[1]); // Get the receiver's PID from command line argument
+    int signal_num = atoi(argv[2]); // Get the signal number from command line argument
+
+    // Send the signal to the receiver process
+    if (kill(receiver_pid, SIGINT) == -1) {
+        perror("kill");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Signal %d sent to process with PID %d\n", signal_num, receiver_pid);
+
+    return 0;
+}
+
+
+code of receiver
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
+
+// Signal handler function
+void signal_handler(int signum) {
+    printf("Received signal %d\n", signum);
+    exit(0);
+    
+}
+
+int main() {
+    // Register the signal handler
+    signal(SIGINT, signal_handler);
+    int id=getpid();
+    printf("process pid %d",id);
+
+    printf("Waiting for signals...\n");
+
+    // Loop infinitely
+    while(1) {
+        sleep(1); // Sleep to avoid busy-waiting
+    }
+
+    return 0;
+}
+
+
+
+
+
+// 9. Write a program to demonstrate the kill system call to send signals between related
+// processes(fork).
+
+
+#include <iostream>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+using namespace std;
+
+
+void signalHandler(int num){
+    cout<<"Killing the child Process"<<endl;
+}
+
+int main(){
+    pid_t pid;
+    pid = fork();
+
+    if(pid<0){
+        cout<<"Fork Failed"<<endl;
+        return 1;
+    }else if(pid==0){
+        signal(SIGTERM,signalHandler);
+        cout<<"Child process is running"<<endl;
+        cout<<"Child process is stuck in loop"<<endl;
+        while (true)
+        {
+            sleep(2);
+        }
+    }else{
+        cout<<"Parent process is waiting for child..."<<endl;
+        sleep(5);
+        cout<<"Sending signal to child process to terminate"<<endl;
+        int res = kill(pid,SIGTERM);
+        if(res==0){
+            cout<<"Signal successfully send to child"<<endl;
+        }else {
+            cout<<"Failed to send signal to child process"<<endl;
+        }
+    }
+    return 0;
+
+
+
+
+
+
+
+
+// 10. Write a program to use alarm and signal sytem call(check i/p from user within time)
+
+#include<iostream>
+#include <unistd.h>
+#include<sys/types.h>
+#include<sys/wait.h>
+
+using namespace std;
+
+
+void alarmHandler(int time){
+    cout<<"Time's up! You did not enter a number within 5 seconds."<<endl;
+    exit(1);
+}
+
+int main(){
+
+    signal(SIGALRM,alarmHandler);
+    cout<<"Enter the input value (Enter within 5 seconds): "<<endl;
+    alarm(5);
+    int num;
+    cin>>num;
+    alarm(0); //unsets all alarm after entering the inputs in between 5 seconds
+    cout << "You entered: " << num << endl;
+    return 0;
+}
+
+
+
+//11. Write a program for alarm clock using alarm and signal system call.
+
+#include<iostream>
+#include<sys/types.h>
+#include<sys/wait.h>
+#include<unistd.h>
+using namespace std;
+
+void alarmHandler(int val){
+    cout<<"Alarm Clock triggered"<<endl;
+    cout<<val<<endl;
+}
+
+int main(){
+    signal(SIGALRM,alarmHandler);
+
+    int time;
+    cout<<"Enter the time in seconds to set a clock : "<<endl;
+    cin>>time;
+    cout<<"Wait for "<<time<<" seconds"<<endl;
+    alarm(time);
+    // pause();
+    sleep(time);
+    cout<<"Exiting program"<<endl;
+    return 0;
+}
+
+
+
+
+// 12. Write a program to give statistics of a given file using stat system call. (few imp field like
+// FAP, file type)
+
+
+#include <iostream>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+using namespace std;
+void print_stat(const char *filename) {
+    struct stat file_stat;
+    if (stat(filename, &file_stat) == -1) {
+        perror("stat");
+        exit(EXIT_FAILURE);
+    }
+
+    cout << "Statistics using stat for file '" << filename << "':\n";
+    cout << "Size: " << file_stat.st_size << " bytes\n";
+    cout << "Owner UID: " << file_stat.st_uid << "\n";
+    cout << "Last access time: " << ctime(&file_stat.st_atime);
+    cout << "Last modification time: " << ctime(&file_stat.st_mtime);
+    cout << "Last status change time: " << ctime(&file_stat.st_ctime);
+}
+
+int main(int argc,char* argv[]) {
+    const char *filename = argv[1];
+    print_stat(filename);
+    return 0;
+}
+
+
+
+//13.  Write a program to give statistics of a given file using fstat system call. (few imp field like
+// FAP, file type)
+
+#include<bits/stdc++.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<sys/stat.h>
+#include<fcntl.h>
+
+using namespace std;
+
+
+int main(int argc,int *argv)
+{
+    struct stat st;
+    int fd=open("file.txt",O_RDONLY);
+    if(fstat(fd,&st)==-1)
+    {
+        cout<<"Error in fstat"<<endl;
+        return -1;
+    }
+    cout<<"file inode number"<<st.st_ino<<endl;
+    cout<<"Size of the file is : "<<st.st_size<<endl;
+    cout<<"File type is : "<<st.st_mode<<endl;
+    string file;
+    if(S_ISREG(st.st_mode))
+      file="Regular file";
+    else if(S_ISDIR(st.st_mode))
+     file=" Directory file";
+    else if(S_ISBLK(st.st_mode))
+     file="Block file";
+    cout<<file<<endl;
+    
+    cout<<"File type is : "<<st.st_mode<<endl;
+    return 0;
+}
+
+
+
+#include<iostream>
+#include<sys/stat.h>
+#include<unistd.h>
+#include<fcntl.h>
+using namespace std;
+
+/*
+
+
+A file descriptor is a unique identifier or a number that the operating system 
+assigns to an open file. It's like a ticket or a reference number that allows programs 
+to interact with files, sockets, or other input/output (I/O) resources.
+
+*/
+
+int main(int argc,char* argv[]){
+    int fd = open(argv[0],O_RDONLY);
+    if(fd==-1){
+        perror("open");
+        exit(1);
+    }
+    struct stat file_stat;
+    if(fstat(fd,&file_stat)==-1){
+        perror("fstat");
+        close(fd);
+        exit(1);
+    }
+    cout<<"Filename : "<<argv[1]<<endl;
+    cout<<"File size : "<<file_stat.st_size<<endl;
+    cout<<"Owner id : "<<file_stat.st_uid<<endl;
+    std::cout << "Last access time: " << ctime(&file_stat.st_atime);
+    std::cout << "Last modification time: " << ctime(&file_stat.st_mtime);
+    std::cout << "Last status change time: " << ctime(&file_stat.st_ctime);
+return 0;
+}
+
+
+//14 Write a multithreaded program in JAVA for chatting.
+
+Server
+import java.io.*;
+import java.net.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class ChatServer {
+    private static final int PORT = 1234;
+    private static CopyOnWriteArrayList<ClientHandler> clients = new CopyOnWriteArrayList<>();
+
+    public static void main(String[] args) {
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("Server is listening on port " + PORT);
+            
+            while (true) {
+                Socket socket = serverSocket.accept();
+                ClientHandler clientThread = new ClientHandler(socket);
+                clients.add(clientThread);
+                clientThread.start();
+            }
+        } catch (IOException ex) {
+            System.out.println("Server exception: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    static void broadcast(String message, ClientHandler excludeUser) {
+        for (ClientHandler aClient : clients) {
+            if (aClient != excludeUser) {
+                aClient.sendMessage(message);
+            }
+        }
+    }
+
+    static void removeClient(ClientHandler client) {
+        clients.remove(client);
+        if (client.getUserName() != null) {
+            System.out.println("The client [" + client.getUserName() + "] disconnected");
+            broadcast("The client [" + client.getUserName() + "] has left the chat.", null);
+        }
+    }
+
+    static class ClientHandler extends Thread {
+        private Socket socket;
+        private PrintWriter writer;
+        private String userName;
+
+        public ClientHandler(Socket socket) {
+            this.socket = socket;
+        }
+
+        public void run() {
+            try {
+                InputStream input = socket.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                OutputStream output = socket.getOutputStream();
+                writer = new PrintWriter(output, true);
+
+                String userName = reader.readLine();
+                this.userName = userName;
+                String serverMessage = "New user connected: " + userName;
+                System.out.println(serverMessage);
+                ChatServer.broadcast(serverMessage, this);
+
+                String clientMessage;
+
+                do {
+                    clientMessage = reader.readLine();
+                    serverMessage = "[" + userName + "]: " + clientMessage;
+                    ChatServer.broadcast(serverMessage, this);
+
+                } while (!clientMessage.equals("bye"));
+
+                ChatServer.removeClient(this);
+                socket.close();
+
+            } catch (IOException ex) {
+                System.out.println("Error in UserThread: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+        }
+
+        void sendMessage(String message) {
+            writer.println(message);
+        }
+
+        String getUserName() {
+            return this.userName;
+        }
+    }
+}
+
+
+
+Client
+import java.io.*;
+import java.net.*;
+
+public class ChatClient {
+    private String userName;
+    private String hostname = "localhost";  
+    private int port = 1234;   
+
+    public ChatClient() {
+        
+    }
+
+    public void execute() {
+        try {
+            Socket socket = new Socket(hostname, port);
+            System.out.println("Connected to the chat server");
+
+            new ReadThread(socket, this).start();
+            new WriteThread(socket, this).start();
+
+        } catch (UnknownHostException ex) {
+            System.out.println("Server not found: " + ex.getMessage());
+        } catch (IOException ex) {
+            System.out.println("I/O Error: " + ex.getMessage());
+        }
+    }
+
+    void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    String getUserName() {
+        return this.userName;
+    }
+
+    public static void main(String[] args) {
+       
+        ChatClient client = new ChatClient();
+        client.execute();
+    }
+
+    static class ReadThread extends Thread {
+        private BufferedReader reader;
+        private Socket socket;
+        private ChatClient client;
+
+        public ReadThread(Socket socket, ChatClient client) {
+            this.socket = socket;
+            this.client = client;
+
+            try {
+                InputStream input = socket.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(input));
+            } catch (IOException ex) {
+                System.out.println("Error getting input stream: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+        }
+
+        public void run() {
+            while (true) {
+                try {
+                    String response = reader.readLine();
+                    System.out.println("\n" + response);
+
+                    // Prompt current user to enter their message right after displaying new messages
+                    if (client.getUserName() != null) {
+                        System.out.print("[" + client.getUserName() + "]: ");
+                    }
+                } catch (IOException ex) {
+                    System.out.println("Error reading from server: " + ex.getMessage());
+                    ex.printStackTrace();
+                    break;
+                }
+            }
+        }
+    }
+
+    static class WriteThread extends Thread {
+        private PrintWriter writer;
+        private Socket socket;
+        private ChatClient client;
+
+        public WriteThread(Socket socket, ChatClient client) {
+            this.socket = socket;
+            this.client = client;
+
+            try {
+                OutputStream output = socket.getOutputStream();
+                writer = new PrintWriter(output, true);
+            } catch (IOException ex) {
+                System.out.println("Error getting output stream: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+        }
+
+        public void run() {
+            Console console = System.console();
+            String userName = console.readLine("\nEnter your name: ");
+            client.setUserName(userName);
+            writer.println(userName);
+
+            String text;
+
+            do {
+                text = console.readLine("[" + userName + "]: ");
+                writer.println(text);
+
+            } while (!text.equals("bye"));
+
+            try {
+                socket.close();
+            } catch (IOException ex) {
+                System.out.println("Error writing to server: " + ex.getMessage());
+            }
+        }
+    }
+}
+
+
+
+
+
+asignment15
+// Write a program to create 3 threads, first thread printing even no, second thread printing odd no.
+// and third thread printing prime no.
+
+import java.io.*;
+
+class odd extends Thread {
+
+    public void run()
+    {
+        for(int i=1;i<=10;i++)
+        {
+            if(i%2!=0)
+            {
+                System.out.println("Odd: "+i);
+            }
+        }
+    }
+}
+
+class even extends Thread
+{
+    public void run()
+    {
+        for(int i=1;i<=10;i++)
+        {
+            if(i%2==0)
+            {
+                System.out.println("Even: "+i);
+            }
+        }
+    }
+
+}
+
+class prime extends Thread
+{
+    public void run()
+    {
+        for(int i=1;i<=10;i++)
+        {
+            int count=0;
+            for(int j=1;j<=i;j++)
+            {
+                if(i%j==0)
+                {
+                    count++;
+                }
+            }
+            if(count==2)
+            {
+                System.out.println("Prime: "+i);
+            }
+        }
+    }
+}
+public class assignment15
+{
+    public static void main(String [] args)
+    {
+        odd o=new odd();
+        even e=new even();
+        prime p=new prime();
+        o.start();
+        e.start();
+        p.start();
+    }
+}
+
+
+
+
+
+16. Write a multithread program in linux to use the pthread library
+#include <iostream>
+#include <pthread.h>
+
+// Function to be executed by the threads
+void *print_message(void *ptr) {
+    char *message = (char *)ptr;
+    std::cout << message << std::endl;
+    pthread_exit(NULL);
+}
+
+int main() {
+    pthread_t thread1, thread2;
+    char *message1 = "Thread 1 is running";
+    char *message2 = "Thread 2 is running";
+
+    // Create the first thread
+    if (pthread_create(&thread1, NULL, print_message, (void *)message1) != 0) {
+        std::cerr << "Error creating thread 1" << std::endl;
+        return 1;
+    }
+
+    // Create the second thread
+    if (pthread_create(&thread2, NULL, print_message, (void *)message2) != 0) {
+        std::cerr << "Error creating thread 2" << std::endl;
+        return 1;
+    }
+
+    // Wait for the threads to finish
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+
+    return 0;
+}
+
+
+
+
+
+
+// 17. producer consumer problem in java using multiThreading
+
+import java.util.LinkedList;
+
+class ProducerConsumer {
+    private LinkedList<Integer> buffer = new LinkedList<>();
+    private int capacity;
+
+    public ProducerConsumer(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public void produce() throws InterruptedException {
+        int value = 0;
+        while (true) {
+            synchronized (this) {
+                while (buffer.size() == capacity) {
+                    wait();
+                }
+
+                System.out.println("Producer produced: " + value);
+                buffer.add(value++);
+                notify();
+
+                Thread.sleep(1000);
+            }
+        }
+    }
+
+    public void consume() throws InterruptedException {
+        while (true) {
+            synchronized (this) {
+                while (buffer.isEmpty()) {
+                    wait();
+                }
+
+                int value = buffer.removeFirst();
+                System.out.println("Consumer consumed: " + value);
+                notify();
+
+                Thread.sleep(1000);
+            }
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        ProducerConsumer pc = new ProducerConsumer(5);
+
+        Thread producerThread = new Thread(() -> {
+            try {
+                pc.produce();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        Thread consumerThread = new Thread(() -> {
+            try {
+                pc.consume();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        producerThread.start();
+        consumerThread.start();
+    }
+}
+
+
+
+
+
+
+18. calculator code
+
+
+#!/bin/bash
+
+echo "enter your number a"
+read a
+
+echo "enter your number b"
+read b
+
+echo "choose 1 for addition"
+echo "choose 2 for subtraction"
+echo "choose 3 for multiplication"
+echo "enter your choice"
+read choice
+
+if [[ $choice == '1' ]]; then 
+    answer=$((a + b))
+    echo "Result: $answer"
+elif [[ $choice == '2' ]]; then
+    answer=$((a - b))
+    echo "Result: $answer"
+elif [[ $choice == '3' ]]; then
+    answer=$((a * b))
+    echo "Result: $answer"
+else
+    echo "Invalid choice"
+fi
+
+
+#OR
+
+#!/bin/bash
+
+echo "****** Calculator : *************"
+echo "Enter first number : "
+read num1
+echo "Enter second number : "
+read num2
+
+echo "Enter the operation : "
+read operation
+
+case $operation in 
+    1) echo "Addition result is : $(($num1 + $num2))"
+        ;;
+    2) echo "Subtraction result is : $(($num1 - $num2))"
+        ;;
+    3)  if [[ "$num2" -eq 0 ]] then
+        echo "Denominator is 0"
+        fi
+        exit 1
+        echo "Division result is : $(($num1 / $num2))"
+        ;;
+    4) echo "Multiplication result is : $(($num1 * $num2))"
+        ;;
+    *) echo "Invalid operation"
+        ;;
+esac
+
+
+
+
+
+digital 
+
+#19.  Write a program to implement digital clock using shell script.
+#!/bin/bash
+
+while true; 
+do
+    clear
+    echo "$(date +"%T")"
+    sleep 1
+done
+
+
+#or
+
+
+#!/bin/bash
+
+while true; do
+    echo "Digital Clock : " 
+    date +"%T , %A , %d %B %Y"
+    sleep 1
+    clear
+done
+
+
+
+
+
+
+# 20. Write a program to check whether system is in network or not using ’ping’ command using shell
+# script.
+#!/bin/bash
+
+# Define the IP address or domain name to ping
+target="www.google.com"
+
+# Ping the target
+ping -c 1 $target 
+
+# Check the exit status of the ping command
+if [ $? == 0 ]; then
+    echo "System is connected to the network."
+else
+    echo "System is not connected to the network."
+fi
+
+
+#OR 
+ping -c 1 8.8.8.8 
+
+if [ $? -eq 0 ]; then
+    echo "Network is reachable"
+else
+    echo "Network is not reachable"
+fi
+
+
+
+
+
+
+
+# 21. Write a program to sort 10 the given 10 numbers in ascending order using shell.
+#!/bin/bash
+
+bubble_sort(){
+    arr=$1
+    local n=${#arr[@]}
+
+    for((i=0;i<n;i++));do
+        for((j=0;j<n-i-1;j++));do
+            if((arr[j]>arr[j+1]));then
+                temp=${arr[j]}
+                arr[j]=${arr[j+1]}
+                arr[j+1]=${temp}
+            fi
+        done
+    done
+}
+
+arr=()
+
+echo "Enter 10 numbers : "
+
+for ((i=0;i<10;i++)); do 
+    read -p "Enter number at $((i+1)): " num
+    arr+=("$num")
+done
+
+bubble_sort "${arr[@]}"
+
+
+echo "Sorted numbers:"
+for ((i=0;i<10;i++));do
+    printf "${arr[i]} "
+done
+
+
+
+
+
+#!/bin/bash
+
+# Define an array
+arr=(5 3 8 1 6 4 2 9 8)
+
+# Sort the array
+sorted_arr=($( for i in "${arr[@]}";do echo "$i" ; done  | sort -n))
+
+# Print the sorted array
+echo "Sorted array:"
+for i in "${sorted_arr[@]}"; do
+    echo "$i"
+done
+
+
+
+
+# 22. Write a program to print “Hello World” message in bold, blink effect, and in different colors like
+# red, blue etc.
+
+print_color() {
+    local color="$1"
+    shift
+    echo -e "\e[${color}m$@"
+}
+
+while true; do
+    print_color "1;31;5" "Hello World" # Red, bold, blink
+    sleep 0.5
+    clear
+    print_color "1;34;5" "Hello World" # Blue, bold, blink
+    sleep 0.5
+    clear
+    print_color "1;32;5" "Hello World" # Blue, bold, blink
+    sleep 0.5
+    clear
+done
+
+
+
+
+
+
+# 23. Write a shell script to find whether given file exist or not in folder or on drive.
+
+#!/bin/bash
+
+
+
+
+echo "Enter the file name"
+read fileName
+
+echo "Enter the directory name"
+read dirName
+
+if [[ -e "${dirName}/${fileName}" ]]
+then
+    echo "File exist"
+else
+    echo "File does not exist"
+fi
+
+
+
+#OR 
+
+
+#!/bin/bash
+
+# Prompt the user for the file name
+read -p "Enter the file name: " filename
+
+# Use find command to search for the file
+result=$(find / -name "$filename" 2>/dev/null)
+
+# Check if the result is not empty
+if [ -n "$result" ]; then
+    echo "File $filename exists at: $result"
+else
+    echo "File $filename does not exist."
+fi
+
+
+
+# 24. Write a shell script to show the disk partitions and their size and disk usage i.e free space.
+
+#!/bin/bash
+
+# Display disk partitions and their sizes
+echo "Disk partitions and their sizes:"
+df -h
+
+# Display disk usage (free space)
+echo "Disk usage (free space):"
+du -h /
+
+
+
+
+
+# 25. Write a shell script to find the given file in the system using find or locate command.
+
+#!/bin/bash
+
+# Main program
+echo "Enter the name of the file to search:"
+read file_to_search
+
+echo "Searching for '$file_to_search' using find command:"
+find / -name "$file_to_search" 2>/dev/null
+
+
+
+#or
+
+#!/bin/bash
+
+# Check if a file name is provided as an argument
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <file_name>"
+    exit 1
+fi
+
+# Search for the file using find
+file_name=$1
+echo "Searching for '$file_name'... using find command"
+res=$( find / -type f -name "$file_name" 2>/dev/null)
+if [ -n "$res" ] ; then
+    echo "file found"
+else echo " NO file found"
+fi
+
+echo "Searching for ${file_name} using locate command"
+locate "$file_name"
+
+
+
+# 26 & 27. Write a shell script to download a webpage from given URL . (Using wget command).
+
+#!/bin/bash
+
+# Check if URL is provided
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <URL>"
+    exit 1
+fi
+
+# Get the URL from the command line argument
+url=$1
+
+# Download the webpage
+wget "$url"
+
+
+
+
+#28. Write a shell script to display the users on the system . (Using finger or who command).
+
+# Display users using the finger command
+echo "Users currently logged in (using finger):"
+finger
+
+# Display users using the who command
+echo -e "\nUsers currently logged in (using who):"
+who
+
+
+
+assignment 29
+# Write a python recursive function for prime number input limit in as parameter to
+# it.
+
+def is_prime(n,i=2):
+    if(n<=2) :
+        return n==2
+    if(n%i==0): 
+        return False
+    if i*i>n:
+        return True
+    return is_prime(n,i+1)
+
+def find_primes(limit,current=2):
+    if current > limit  : 
+        return []
+    if is_prime(current) : 
+        return [current]+find_primes(limit,current+1)
+    return find_primes(limit,current+1)
+
+arr = find_primes(100)
+print(arr)
+
+
+assignment 30:
+. Write a program to display the following pyramid. The number of lines in the
+pyramid should not be hard-coded. It should be obtained from the user. The
+pyramid should appear as close to the center of the screen as possible.
+(Hint: Basics n loops)
+
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+int main() {
+    int numLines;
+    
+    cout << "Enter the number of lines in the pyramid: ";
+    cin >> numLines;
+    
+    // Display the pyramid
+    for(int i = 1; i <= numLines; ++i) {
+        // Print leading spaces
+        cout << setw(numLines - i + 1);
+        
+        // Print left half of the pyramid
+        for(int j = 1; j <= i; ++j) {
+            cout << j << " ";
+        }
+        
+        // Print right half of the pyramid
+        for(int j = i - 1; j >= 1; --j) {
+            cout << j << " ";
+        }
+        
+        cout << endl;
+    }
+    
+    return 0;
+}
+
+
+
+#!/bin/bash
+
+# Read the number of lines for the pyramid from the user
+read -p "Enter the number of lines for the pyramid: " numLines
+
+# Get the width of the terminal
+terminalWidth=$(tput cols)
+
+# Calculate the total width of the pyramid
+totalWidth=$((2 * numLines - 1))
+
+# Calculate the number of spaces to center the pyramid horizontally
+spacesBefore=$(( (terminalWidth - totalWidth) / 2 ))
+
+# Print the centered pyramid
+for ((i = 1; i <= numLines; i++)); do
+    spaces=$(( (totalWidth - 2 * i + 1) / 2 ))
+    stars=$((2 * i - 1))
+    for ((j = 0; j < spacesBefore; j++)); do
+        printf " "
+    done
+    for ((j = 0; j < spaces; j++)); do
+        printf " "
+    done
+    for ((j = 0; j < stars; j++)); do
+        printf "*"
+    done
+    printf "\n"
+done
+
+
+
+31. take any txt file and count word frequencies in a file.(hint : file handling + basics )
+
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <string>
+#include <sstream>
+#include <cctype>
+
+using namespace std;
+
+// Function to remove punctuation from a word
+string removePunctuation(const string& word) {
+    string result = "";
+    for(char c : word) {
+        if(isalpha(c)) {
+            result += tolower(c);
+        }
+    }
+    return result;
+}
+
+int main() {
+    // Open the text file
+    ifstream inputFile("input.txt");
+    if (!inputFile) {
+        cerr << "Error opening file." << endl;
+        return 1;
+    }
+    
+    // Map to store word frequencies
+    map<string, int> wordFrequency;
+    string line;
+    
+    // Read the file line by line
+    while(getline(inputFile, line)) {
+        // Tokenize the line
+        istringstream iss(line);
+        string word;
+        while(iss >> word) {
+            // Remove punctuation and convert to lowercase
+            word = removePunctuation(word);
+            
+            // Increment the word frequency count
+            if(!word.empty()) {
+                wordFrequency[word]++;
+            }
+        }
+    }
+    
+    // Close the file
+    inputFile.close();
+    
+    // Print the word frequencies
+    cout << "Word frequencies:" << endl;
+    for(const auto& pair : wordFrequency) {
+        cout << pair.first << ": " << pair.second << endl;
+    }
+    
+    return 0;
+}
+
+31. Take any txt file and count word frequencies in a file.(hint : file handling + basics )
+# Open the file and read its contents into a string
+with open("text_file.txt", "r") as file:
+    text = file.read()
+
+# Remove any punctuation from the text
+punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+for char in text:
+    if char in punctuations:
+        text = text.replace(char, "")
+
+# Split the text into a list of words
+words = text.split()
+
+# Create a dictionary to store the word frequencies
+word_freq = {}
+
+# Count the frequency of each word
+for word in words:
+    if word.lower() in word_freq:
+        word_freq[word.lower()] += 1
+    else:
+        word_freq[word.lower()] = 1
+
+# Print the word frequencies
+for word in sorted(word_freq):
+    print(word, word_freq[word])
+
+Gedit command_frequnecy.py
+python command_frequency.py
+
+
+
+with open('temp.txt', 'r') as file:
+    text = file.read()
+
+words = text.split()
+
+word_freq = {}
+
+for word in words:
+    word = word.lower()
+    
+    if word in word_freq:
+        word_freq[word] += 1
+    else:
+        word_freq[word] = 1
+
+for word, freq in word_freq.items():
+    print(f'{word}: {freq}')
+
+
+
+
+32. Generate a frequency list of all the commands you have used, and show the top 5 commands along with their count. (Hint: history command hist will give you a list of all commands used.)
+
+import os
+from collections import Counter
+
+def get_bash_history_commands():
+    history_file = os.path.expanduser("~/.bash_history")
+    with open(history_file, "r", encoding="utf-8") as file:
+        commands = file.readlines()
+    return [command.strip() for command in commands if command.strip()]
+
+commands = get_bash_history_commands()
+command_freq = Counter(commands)
+
+print("Top 5 commands:")
+for command, count in command_freq.most_common(5):
+    print(f"{count}: {command}")
+
+gedit command_frequency.py
+python3 command_frequency.py
+
+
+#OR IN SHELL SCRIPT
+
+# Generate a frequency list of all commands
+history | awk '{print $2}' | sort | uniq -c | sort -nr > command_freq.txt
+# Display the top 5 commands
+echo "Top 5 most used commands:"
+head -n 5 command_freq.txt
+
+
+
+33. Write a shell script that will take a filename as input and check if it is executable. 2. Modify the script in the previous question, to remove the execute permissions, if the file is executable.
+
+To accomplish this objective, we can write a shell script that takes a filename as input and checks if it is executable. If the file is executable, the script will remove its execute permissions. Here's the shell script:
+
+#!/bin/bash
+
+if [ "$#" -ne 1 ];then
+    echo "Invalid or no file provided"
+    exit 1
+fi
+
+if [ ! -e "$1" ];then
+    echo "No file '$1' exists in current directory"
+    exit 1
+fi
+
+if [ ! -x "$1" ];then
+    echo "file already is not executable"
+else
+    echo "FIle is executable"
+    chmod -x "$1"
+    echo "Execute permissions removed from $1."
+fi
+gedit check_permissions.sh
+chmod +x check_permissions.sh
+./check_permissions.sh filename(filename give exec file to check permission)
+
+34. Generate a word frequency list for wonderland.txt. Hint: use grep, tr, sort, uniq (or anything else that you want)
+
+Just take wonderland.txt and directly run this
+#!/bin/bash
+
+# Check if the file name is provided
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <filename>"
+    exit 1
+fi
+
+file="$1"
+
+# Check if the file exists
+if [ ! -f "$file" ]; then
+    echo "Error: File '$file' does not exist."
+    exit 1
+fi
+
+# Extract words, convert to lowercase, and sort
+cat "$file" | tr -sc "A-Za-z" "\n" | tr "A-Z" "a-z" | grep w | sort |
+# Count the frequency of each word
+uniq -c |
+# Sort by frequency in descending order
+sort -nr
+
+35. Write a bash script that takes 2 or more arguments, i)All arguments are filenames ii)If fewer than two arguments are given, print an error message iii)If the files do not exist, print error message iv)Otherwise concatenate files 
+
+
+
+
+#!/bin/bash
+
+if [ "$#" -lt 2 ]; then 
+    echo "very few arguments"
+    exit 1
+fi
+
+for file in "$@"; do
+    if [ ! -f "$file" ]; then
+    echo "File not exist"
+    exit 1
+    fi
+done
+
+cat "$@">merge.cpp
+echo "Merging successful"
+
+
+
+Create any file1.txt file2.txt 
+chmod +x concat_files.sh
+./concat_files.sh file1.txt file2.txt file3.txt ...
+
+
+
+
+
+36. Write a python function for merge/quick sort for integer list as parameter to it.
+merge
+def merge(low,high,arr):
+    mid= (low+high) // 2
+    i=low
+    j=mid+1
+    temp=[]
+    while (i<=mid and j<=high):
+        if(arr[i]<arr[j]):
+            temp.append(arr[i])
+            i+=1
+        else :
+            temp.append(arr[j])
+            j+=1
+    while i<=mid :
+        temp.append(arr[i])
+        i+=1
+    while j<=high :
+        temp.append(arr[j])
+        j+=1
+    t=0
+    while t<len(temp) :
+        arr[low+t]=temp[t]
+        t+=1
+
+            
+
+
+def merge_sort(low,high,arr):
+    if(low<high) :
+        mid = (low + high ) // 2
+        merge_sort(low,mid,arr)
+        merge_sort(mid+1,high,arr)
+        merge(low,high,arr)
+
+arr=[1,9,8,7,6,3,5,4]
+merge_sort(0,len(arr)-1,arr)
+for i in arr : 
+    print(i,end=" ")
+
+
+
+
+
+
+
+Quick
+
+def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+
+    return quick_sort(left) + middle + quick_sort(right)
+
+# Input from the user
+n = int(input("Enter the number of integers: "))
+input_str = input(f"Enter {n} space-separated integers: ")
+arr = [int(x) for x in input_str.split()]
+
+# Check if the number of integers provided is equal to n
+if len(arr) != n:
+    print(f"Error: Expected {n} integers.")
+else:
+    # Sort the array using quick sort
+    sorted_arr = quick_sort(arr)
+    print("Sorted array:", sorted_arr)
+Gedit quick.py
+Python3 quick.py
+
+37. Write a shell script to download a given file from ftp://10.10.13.16 if it exists on ftp. (use lftp, get and mget commands). 
+
+You can use the lftp command-line tool to achieve this. Below is a shell script that downloads a given file from the FTP server at ftp://10.10.13.16 if it exists:
+
+#!/bin/bash
+
+# Function to download a file from FTP
+download_file() {
+    # FTP URL and filename
+    ftp_url="ftp://10.10.13.16"
+    filename="$1"
+
+    # Check if the file exists on FTP
+    echo "Checking if $filename exists on FTP..."
+    if lftp -e "find $filename; exit" "$ftp_url" | grep -q "$filename"; then
+        # Download the file
+        echo "Downloading $filename from FTP..."
+        lftp -e "get $filename; exit" "$ftp_url"
+        echo "Download complete."
+    else
+        echo "Error: $filename does not exist on FTP."
+    fi
+}
+
+# Main script
+# Check if filename is provided as argument
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <filename>"
+    exit 1
+fi
+
+# Get the filename from command-line argument
+filename="$1"
+
+# Call the function to download the file from FTP
+download_file "$filename”
+
+Gedit download_from_ftp.sh
+chmod +x download_from_ftp.sh
+./download_from_ftp.sh filename(filename you want to download from ftp)
+
+
+38. Write program to implement producer consumer problem using semaphore.h in C/JAVA
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+pthread_t *producers;
+pthread_t *consumers;
+sem_t buf_mutex, empty_count, fill_count;
+int *buf, buf_pos = -1, prod_count, con_count, buf_len;
+
+int produce(pthread_t self) {
+    int i = 0;
+    int p = 1 + rand() % 40;
+    while (!pthread_equal(*(producers + i), self) && i < prod_count) {
+        i++;
+    }
+    printf("Producer %d produced %d \n", i + 1, p);
+    return p;
+}
+
+void consume(int p, pthread_t self) {
+    int i = 0;
+    while (!pthread_equal(*(consumers + i), self) && i < con_count) {
+        i++;
+    }
+    printf("Buffer:");
+    for (i = 0; i <= buf_pos; ++i)
+        printf("%d ", *(buf + i));
+    printf("\nConsumer %d consumed %d \nCurrent buffer len: %d\n", i + 1, p, buf_pos);
+}
+
+void* producer(void *args) {
+    while (1) {
+        int p = produce(pthread_self());
+        sem_wait(&empty_count);
+        sem_wait(&buf_mutex);
+        ++buf_pos; // critical section
+        *(buf + buf_pos) = p;
+        sem_post(&buf_mutex);
+        sem_post(&fill_count);
+        sleep(1 + rand() % 3);
+    }
+    return NULL;
+}
+
+void* consumer(void *args) {
+    int c;
+    while (1) {
+        sem_wait(&fill_count);
+        sem_wait(&buf_mutex);
+        c = *(buf + buf_pos);
+        consume(c, pthread_self());
+        --buf_pos;
+        sem_post(&buf_mutex);
+        sem_post(&empty_count);
+        sleep(1 + rand() % 5);
+    }
+    return NULL;
+}
+
+int main(void) {
+    int i, err;
+    srand(time(NULL));
+    sem_init(&buf_mutex, 0, 1);
+    sem_init(&fill_count, 0, 0);
+    printf("Enter the number of Producers:");
+    scanf("%d", &prod_count);
+    producers = (pthread_t*) malloc(prod_count * sizeof(pthread_t));
+    printf("Enter the number of Consumers:");
+    scanf("%d", &con_count);
+    consumers = (pthread_t*) malloc(con_count * sizeof(pthread_t));
+    printf("Enter buffer capacity:");
+    scanf("%d", &buf_len);
+    buf = (int*) malloc(buf_len * sizeof(int));
+    sem_init(&empty_count, 0, buf_len);
+    for (i = 0; i < prod_count; i++) {
+        err = pthread_create(producers + i, NULL, &producer, NULL);
+        if (err != 0) {
+            fprintf(stderr, "Error creating producer %d: %s\n", i + 1, strerror(err));
+        } else {
+            printf("Successfully created producer %d\n", i + 1);
+        }
+    }
+    for (i = 0; i < con_count; i++) {
+        err = pthread_create(consumers + i, NULL, &consumer, NULL);
+        if (err != 0) {
+            fprintf(stderr, "Error creating consumer %d: %s\n", i + 1, strerror(err));
+        } else {
+            printf("Successfully created consumer %d\n", i + 1);
+        }
+    }
+    for (i = 0; i < prod_count; i++) {
+        pthread_join(*(producers + i), NULL);
+    }
+    for (i = 0; i < con_count; i++) {
+        pthread_join(*(consumers + i), NULL);
+    }
+    return 0;
+}
+gedit producer_consumer.c
+gcc -pthread producer_consumer.c -o producer_consumer
+./producer_consumer
+
+
+39. Write a program to implement reader-writers problem using semaphore.  
+
+The reader-writers problem involves multiple readers and writers accessing a shared resource (e.g., a file, database, etc.). Readers can access the resource simultaneously, while writers must have exclusive access to the resource. We can use semaphores to solve this problem by ensuring that writers have exclusive access while allowing multiple readers to access the resource concurrently.
+
+Here's a basic implementation of the reader-writers problem using semaphores in C:
+
+c
+Copy code
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+#define NUM_READERS 3
+#define NUM_WRITERS 2
+
+sem_t mutex, write_block;
+int data = 0, reader_count = 0;
+
+void *reader(void *arg) {
+    int reader_id = *(int *)arg;
+    while (1) {
+        sem_wait(&mutex);
+        reader_count++;
+        if (reader_count == 1) {
+            sem_wait(&write_block);
+        }
+        sem_post(&mutex);
+
+        printf("Reader %d read data: %d\n", reader_id, data);
+
+        sem_wait(&mutex);
+        reader_count--;
+        if (reader_count == 0) {
+            sem_post(&write_block);
+        }
+        sem_post(&mutex);
+    }
+    pthread_exit(NULL);
+}
+
+void *writer(void *arg) {
+    int writer_id = *(int *)arg;
+    while (1) {
+        sem_wait(&write_block);
+        data++;
+        printf("Writer %d wrote data: %d\n", writer_id, data);
+        sem_post(&write_block);
+    }
+    pthread_exit(NULL);
+}
+
+int main() {
+    pthread_t readers[NUM_READERS], writers[NUM_WRITERS];
+    int reader_ids[NUM_READERS], writer_ids[NUM_WRITERS];
+    int i;
+
+    // Initialize semaphores
+    sem_init(&mutex, 0, 1);
+    sem_init(&write_block, 0, 1);
+
+    // Create reader threads
+    for (i = 0; i < NUM_READERS; i++) {
+        reader_ids[i] = i + 1;
+        pthread_create(&readers[i], NULL, reader, &reader_ids[i]);
+    }
+
+    // Create writer threads
+    for (i = 0; i < NUM_WRITERS; i++) {
+        writer_ids[i] = i + 1;
+        pthread_create(&writers[i], NULL, writer, &writer_ids[i]);
+    }
+
+    // Join reader threads
+    for (i = 0; i < NUM_READERS; i++) {
+        pthread_join(readers[i], NULL);
+    }
+
+    // Join writer threads
+    for (i = 0; i < NUM_WRITERS; i++) {
+        pthread_join(writers[i], NULL);
+    }
+
+    // Destroy semaphores
+    sem_destroy(&mutex);
+    sem_destroy(&write_block);
+
+    return 0;
+}
+Gedit reader_writers.c
+gcc -pthread reader_writers.c -o reader_writers
+./reader_writers
+
+
+
+40. Write a program for chatting between two/three users to demonstrate IPC using message passing (msgget, msgsnd, msgrcv ).  
+#include <iostream>
+#include <cstring>
+#include <cstdlib>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+using namespace std;
+
+// Message structure
+struct msg_buffer {
+    long msg_type;
+    char msg_text[100];
+} message;
+
+int main() {
+    key_t key;
+    int msgid;
+
+    // Generate unique key
+    key = ftok("msg_queue", 65);
+    cout<<key<<endl;
+
+    // Create a message queue and get its id
+    msgid = msgget(key, 0666 | IPC_CREAT);
+    cout<<msgid<<endl;
+
+    // Main loop for chatting
+    while (true) {
+        // Send message to other user
+        cout << "User 1: ";
+        cin.getline(message.msg_text, 100);
+        message.msg_type = 1;
+        msgsnd(msgid, &message, sizeof(message), 0);
+
+        // Receive message from other user
+        msgrcv(msgid, &message, sizeof(message), 2, 0);
+
+        // Display the message
+        cout << "User 2: " << message.msg_text << endl;
+
+        // Check if user wants to exit
+        if (strcmp(message.msg_text, "exit") == 0) {
+            break;
+        }
+    }
+
+    // Remove the message queue
+    msgctl(msgid, IPC_RMID, NULL);
+
+    return 0;
+}
+
+
+2nd part
+
+#include <iostream>
+#include <cstring>
+#include <cstdlib>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+using namespace std;
+
+// Message structure
+struct msg_buffer {
+    long msg_type;
+    char msg_text[100];
+} message;
+
+int main() {
+    key_t key;
+    int msgid;
+
+    // Generate unique key
+    key = ftok("msg_queue",65);
+
+    // Get the message queue id
+    msgid = msgget(key, 0666 | IPC_CREAT);
+
+    cout<<msgid<<endl;
+
+    // Main loop for chatting
+    while (true) {
+        // Receive message from other user
+        msgrcv(msgid, &message, sizeof(message), 1, 0);
+
+        // Display the message
+        cout << "User 1: " << message.msg_text << endl;
+
+        // Send message to other user
+        cout << "User 2: ";
+        cin.getline(message.msg_text, 100);
+        message.msg_type = 2;
+        msgsnd(msgid, &message, sizeof(message), 0);
+
+        // Check if user wants to exit
+        if (strcmp(message.msg_text, "exit") == 0) {
+            break;
+        }
+    }
+
+    return 0;
+}
+
+
+
+41.Write a program to demonstrate IPC using shared memory (shmget, shmat,
+shmdt). In this, one process will send A to Z/1 to 100 as input from user and another
+process will receive it.
+
+# 1ST PART
+
+#include <iostream>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+using namespace std;
+
+int main() {
+    // Shared memory key
+    key_t key = ftok("shm_memory", 65);
+
+    // Get the shared memory segment
+    int shmid = shmget(key, 1024, 0666 | IPC_CREAT);
+if (shmid == -1) {
+    perror("shmget");
+    return 1;
+}
+
+    // Attach the shared memory segment
+    char* shared_memory = (char*)shmat(shmid, (void*)0, 0);
+
+    // Write alphabet letters to shared memory
+    for (char c = 'A'; c <= 'Z'; ++c) {
+        shared_memory[c - 'A'] = c;
+    }
+
+    // Detach the shared memory segment
+    shmdt(shared_memory);
+
+    return 0;
+}
+
+
+
+
+# 2ND PART
+#include <iostream>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <cstring> // for memset
+
+using namespace std;
+
+int main() {
+    // Shared memory key
+    key_t key = ftok("shm_memory",65);
+
+    // Get the shared memory segment
+    int shmid = shmget(key, 1024, 0666 | IPC_CREAT);
+
+    // Attach the shared memory segment
+    char* shared_memory = (char*)shmat(shmid, (void*)0, 0);
+
+    // Read and print the alphabet string from shared memory
+    for (int i = 0; i < 26; ++i) {
+        cout << shared_memory[i] << " ";
+    }
+    cout << endl;
+
+    // Detach the shared memory segment
+    shmdt(shared_memory);
+
+    // Delete the shared memory segment
+    shmctl(shmid, IPC_RMID, NULL);
+
+    return 0;
+}
+
+
+
+42. Write a program to demonstrate IPC using shared memory (shmget, shmat,
+shmdt). In this, one process will send from file A to Z/1 to 100 as input from user
+and another process will receive it in file. (use same directory and different name
+files)
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/wait.h>
+
+#define SHM_SIZE 1024
+#define DATA_FILE "data.txt"
+#define RESULT_FILE "result.txt"
+
+int main() {
+    int shmid;
+    key_t key;
+    char *shm, *s;
+
+    // Create a unique key
+    key = ftok(".", 's');
+    if (key == -1) {
+        perror("ftok");
+        exit(1);
+    }
+
+    // Create the shared memory segment
+    shmid = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(1);
+    }
+
+    // Attach to the shared memory
+    shm = shmat(shmid, NULL, 0);
+    if (shm == (char *) -1) {
+        perror("shmat");
+        exit(1);
+    }
+
+    // Fork a child process
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        perror("fork");
+        exit(1);
+    }
+
+    if (pid == 0) { // Child process (receiver)
+        FILE *result_file = fopen(RESULT_FILE, "w");
+        if (result_file == NULL) {
+            perror("fopen");
+            exit(1);
+        }
+
+        printf("Child process: Waiting for data...\n");
+
+        // Wait for the parent process to write data
+        while (*shm == 0)
+            usleep(100);
+
+        // Write the received data to a file
+        fprintf(result_file, "%s", shm);
+        printf("Child process: Received data and written to %s\n", RESULT_FILE);
+
+        // Close the result file
+        fclose(result_file);
+
+        // Detach from the shared memory
+        if (shmdt(shm) == -1) {
+            perror("shmdt");
+            exit(1);
+        }
+
+        exit(0);
+    } else { // Parent process (sender)
+        FILE *data_file = fopen(DATA_FILE, "r");
+        if (data_file == NULL) {
+            perror("fopen");
+            exit(1);
+        }
+
+        printf("Parent process: Reading data from %s...\n", DATA_FILE);
+
+        // Read data from the file
+        fgets(shm, SHM_SIZE, data_file);
+
+        // Close the data file
+        fclose(data_file);
+
+        printf("Parent process: Sending data to child process...\n");
+
+        // Wait for the child process to complete
+        wait(NULL);
+
+        // Detach from the shared memory
+        if (shmdt(shm) == -1) {
+            perror("shmdt");
+            exit(1);
+        }
+
+        // Remove the shared memory segment
+        shmctl(shmid, IPC_RMID, NULL);
+    }
+
+    return 0;
+}
+
+/*
+Commands
+gcc -o filename filename.c
+./filename
+
+*/
+43. Write a program to demonstrate IPC using shared memory (shmget, shmat, shmdt). In
+this, one process will take numbers as input from user and second process will sort the
+numbers and put back to shared memory. Third process will display the shared memory.
+#include <iostream>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <unistd.h>
+#include <wait.h>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    // Shared memory key
+    key_t key = ftok("shm_memory", 65);
+
+    // Get the shared memory segment
+    int shmid = shmget(key, 5 * sizeof(int), 0666 | IPC_CREAT);
+
+    // Attach the shared memory segment
+    int* shared_memory = (int*)shmat(shmid, (void*)0, 0);
+
+    // Create first child process
+    int pid1 = fork();
+    if (pid1 == 0) {
+        // Child process 1: Take numbers as input from user
+        cout<<"Takin input through process 1 : inside shm"<<" pid : "<<getpid()<<endl;
+        cout << "Enter 5 numbers: ";
+        for (int i = 0; i < 5; ++i) {
+            cin >> shared_memory[i];
+        }
+        shmdt(shared_memory);
+    } else {
+        wait(NULL);
+
+        // Create second child process
+        int pid2 = fork();
+        if (pid2 == 0) {
+            // Child process 2: Sort the numbers
+            cout<<"Sorting the number in process 2 : of shm"<<" pid : "<<getpid()<<endl;
+            shmat(shmid, (void*)0, 0);
+            sort(shared_memory, shared_memory + 5);
+            shmdt(shared_memory);
+        } else {
+            wait(NULL);
+
+            // Parent process: Display the sorted numbers
+            cout<<"Printing the number in process 3 in shared memory"<<" pid : "<<getpid()<<endl;
+            shmat(shmid, (void*)0, 0);
+            cout << "Sorted numbers: ";
+            for (int i = 0; i < 5; ++i) {
+                cout << shared_memory[i] << " ";
+            }
+            cout << endl;
+
+            // Cleanup shared memory
+            shmctl(shmid, IPC_RMID, NULL);
+        }
+    }
+
+    return 0;
+}
+
+
+
+
+44. Write a program in which different processes will perform different operation on shared
+memory. Operation: create memory, delete, attach/ detach(using shmget, shmat, shmdt).#include <iostream>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <unistd.h>
+#include <wait.h>
+
+using namespace std;
+
+int main() {
+    // Generate a key for the shared memory segment
+    key_t key = ftok("shm_memory", 65);
+
+    // Create a shared memory segment
+    int shmid = shmget(key, 1024, 0666 | IPC_CREAT);
+
+    // Fork first child process
+    int pid1 = fork();
+    if (pid1 == 0) {
+        // Child process 1: Attach to shared memory and print a message
+        char* shared_memory = (char*)shmat(shmid, (void*)0, 0);
+        cout << "Child Process 1: Shared Memory attached" << endl;
+
+        // Detach from shared memory
+        shmdt(shared_memory);
+        cout << "Child Process 1: Shared Memory detached" << endl;
+    } else {
+        // Parent process
+        wait(NULL);
+
+        // Fork second child process
+        int pid2 = fork();
+        if (pid2 == 0) {
+            // Child process 2: Delete shared memory
+            shmctl(shmid, IPC_RMID, NULL);
+            cout << "Child Process 2: Shared Memory deleted" << endl;
+        } else {
+            // Parent process
+            wait(NULL);
+
+            // Fork third child process
+            int pid3 = fork();
+            if (pid3 == 0) {
+                // Child process 3: Create new shared memory
+                int shmid_new = shmget(key, 1024, 0666 | IPC_CREAT);
+                cout << "Child Process 3: Shared Memory created with ID " << shmid_new << endl;
+            } else {
+                // Parent process
+                wait(NULL);
+
+                // Attach to shared memory and print a message
+                char* shared_memory = (char*)shmat(shmid, (void*)0, 0);
+                cout << "Parent Process: Shared Memory attached" << endl;
+
+                // Detach from shared memory
+                shmdt(shared_memory);
+                cout << "Parent Process: Shared Memory detached" << endl;
+            }
+        }
+    }
+
+    return 0;
+}
+
+
+45. Write programs to simulate linux commands cat, ls, cp, mv, head etc.
+
+/*
+Commands to run
+gcc -o cp cp.c
+gcc -o head head.c
+gcc -o ls ls.c
+gcc -o mv mv.c
+
+
+./cp source_file destination_file
+./head [number_of_lines] [file_name]
+./ls [directory_path]
+./mv source_file destination_file
+
+
+*/
+//cat
+#include <stdio.h>
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Usage: %s <file1> [<file2> ...]\n", argv[0]);
+        return 1;
+    }
+
+    for (int i = 1; i < argc; i++) {
+        FILE *file = fopen(argv[i], "r");
+        if (file == NULL) {
+            printf("Error: Cannot open file %s\n", argv[i]);
+            continue;
+        }
+
+        char c;
+        while ((c = fgetc(file)) != EOF) {
+            putchar(c);
+        }
+
+        fclose(file);
+    }
+
+    return 0;
+}
+
+// commands to run
+/*
+gcc -o cat cat.c
+./cat file1.txt file2.txt
+
+*/
+
+//cp
+#include <stdio.h>
+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        printf("Usage: %s <source> <destination>\n", argv[0]);
+        return 1;
+    }
+
+    FILE *source_file = fopen(argv[1], "r");
+    if (source_file == NULL) {
+        perror("fopen");
+        return 1;
+    }
+
+    FILE *destination_file = fopen(argv[2], "w");
+    if (destination_file == NULL) {
+        perror("fopen");
+        fclose(source_file);
+        return 1;
+    }
+
+    char c;
+    while ((c = fgetc(source_file)) != EOF) {
+        fputc(c, destination_file);
+    }
+
+    fclose(source_file);
+    fclose(destination_file);
+
+    return 0;
+}
+
+//head
+#include <stdio.h>
+
+#define DEFAULT_NUM_LINES 10
+
+int main(int argc, char *argv[]) {
+    int num_lines = DEFAULT_NUM_LINES;
+    if (argc > 1) {
+        num_lines = atoi(argv[1]);
+    }
+
+    FILE *file = stdin;
+    if (argc > 2) {
+        file = fopen(argv[2], "r");
+        if (file == NULL) {
+            perror("fopen");
+            return 1;
+        }
+    }
+
+    int lines_printed = 0;
+    char buffer[1024];
+    while (fgets(buffer, sizeof(buffer), file) != NULL && lines_printed < num_lines) {
+        fputs(buffer, stdout);
+        lines_printed++;
+    }
+
+    if (file != stdin) {
+        fclose(file);
+    }
+
+    return 0;
+}
+
+
+//ls
+#include <stdio.h>
+#include <dirent.h>
+
+int main(int argc, char *argv[]) {
+    const char *dir_path = argc > 1 ? argv[1] : ".";
+
+    DIR *dir = opendir(dir_path);
+    if (dir == NULL) {
+        perror("opendir");
+        return 1;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        printf("%s\n", entry->d_name);
+    }
+
+    closedir(dir);
+    return 0;
+}
+
+//mv
+
+#include <stdio.h>
+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        printf("Usage: %s <source> <destination>\n", argv[0]);
+        return 1;
+    }
+
+    if (rename(argv[1], argv[2]) == -1) {
+        perror("rename");
+        return 1;
+    }
+
+    return 0;
+}
+
+
+46. Write a program to ensure that function f1 should executed before executing function f2
+using semaphore. (Ex. Program should ask for username before entering password)
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+// Define semaphores
+sem_t sem_f1;
+sem_t sem_f2;
+
+void *f1(void *arg) {
+    // Ask for username
+    printf("Enter username: ");
+    char username[100];
+    scanf("%s", username);
+
+    // Signal that f1 is done
+    sem_post(&sem_f1);
+
+    pthread_exit(NULL);
+}
+
+void *f2(void *arg) {
+    // Wait for f1 to finish
+    sem_wait(&sem_f1);
+
+    // Now execute f2
+    printf("Enter password: ");
+    char password[100];
+    scanf("%s", password);
+
+    pthread_exit(NULL);
+}
+
+int main() {
+    // Initialize semaphores
+    sem_init(&sem_f1, 0, 0);
+    sem_init(&sem_f2, 0, 0);
+
+    // Create threads for f1 and f2
+    pthread_t thread_f1, thread_f2;
+
+    pthread_create(&thread_f1, NULL, f1, NULL);
+    pthread_create(&thread_f2, NULL, f2, NULL);
+
+    // Wait for threads to finish
+    pthread_join(thread_f1, NULL);
+    pthread_join(thread_f2, NULL);
+
+    // Destroy semaphores
+    sem_destroy(&sem_f1);
+    sem_destroy(&sem_f2);
+
+    return 0;
+}
+
+/*
+gcc -o threads threads.c -pthread
+./threads
+
+
+*/
+
+
+47. Write a program using OpenMP library to parallelize the for loop in sequential program
+of finding prime numbers in given range.
+#include <iostream>
+#include <vector>
+#include <omp.h>
+
+using namespace std;
+
+bool is_prime(int num) {
+    if (num <= 1) return false;
+    for (int i = 2; i * i <= num; ++i) {
+        if (num % i == 0) return false;
+    }
+    return true;
+}
+
+int main() {
+    int start = 2, end = 100;
+    vector<int> primes;
+
+    #pragma omp parallel for
+    for (int i = start; i <= end; ++i) {
+        if (is_prime(i)) {
+            #pragma omp critical
+            {
+                primes.push_back(i);
+            }
+        }
+    }
+
+    cout << "Prime numbers between " << start << " and " << end << " are:\n";
+    for (int prime : primes) {
+        cout << prime << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
+
+
+
+
+48. Using OpemnMP library write a program in which master thread count the total no. of
+threads created, and others will print their thread numbers.
+#include <stdio.h>
+#include <omp.h>
+
+int main() {
+    int total_threads = 0;
+
+    #pragma omp parallel
+    {
+        #pragma omp master
+        {
+            total_threads = omp_get_num_threads();
+            printf("Total number of threads created: %d\n", total_threads);
+        }
+
+        int thread_num = omp_get_thread_num();
+        printf("Thread %d reporting.\n", thread_num);
+    }
+
+    return 0;
+}
+
+/*
+gcc -o thread_info -fopenmp thread_info.c
+./thread_info
+
+*/
+
+
+
+49. Implement the program for IPC using MPI library (“Hello world” program).
+
+#include <stdio.h>
+#include <mpi.h>
+
+int main(int argc, char *argv[]) {
+    int rank, size;
+
+    // Initialize MPI
+    MPI_Init(&argc, &argv);
+
+    // Get the rank of the current process
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    // Get the total number of processes
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    // Print "Hello world" from each process
+    printf("Hello world from process %d out of %d\n", rank, size);
+
+    // Finalize MPI
+    MPI_Finalize();
+
+    return 0;
+}
+
+/*
+commands to run
+sudo apt-get install openmpi-bin libopenmpi-dev
+
+mpicc -o mpi_hello mpi_hello.c
+mpirun -np 4 ./mpi_hello
+
+*/
+50. Write a 2 programs that will both send and messages and construct the following
+dialog between them
+(Process 1) Sends the message "Are you hearing me?"
+(Process 2) Receives the message and replies "Loud and Clear".
+(Process 1) Receives the reply and then says "I can hear you too".
+IPC:Message Queues:msgget, msgsnd, msgrcv.
+
+50.1#include <iostream>
+#include <cstring>
+#include <cstdlib>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+using namespace std;
+
+// Message structure
+struct msg_buffer {
+    long msg_type;
+    char msg_text[100];
+} message;
+
+int main() {
+    key_t key;
+    int msgid;
+
+    // Generate unique key
+    key = ftok("msg_queue", 65);
+    // cout<<key<<endl;
+
+    // Create a message queue and get its id
+    msgid = msgget(key, 0666 | IPC_CREAT);
+    // cout<<msgid<<endl;
+
+    // Main loop for chatting
+    while (true) {
+        // Send message to other user
+        cout << "Process 1: ";
+        cin.getline(message.msg_text, 100);
+        message.msg_type = 1;
+        msgsnd(msgid, &message, sizeof(message), 0);
+
+        // Receive message from other user
+        msgrcv(msgid, &message, sizeof(message), 2, 0);
+
+        // Display the message
+        cout << "Process 2: " << message.msg_text << endl;
+
+        // Check if user wants to exit
+        if (strcmp(message.msg_text, "exit") == 0) {
+            break;
+        }
+    }
+
+    // Remove the message queue
+    msgctl(msgid, IPC_RMID, NULL);
+
+    return 0;
+}
+
+
+50.2#include <iostream>
+#include <cstring>
+#include <cstdlib>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+using namespace std;
+
+// Message structure
+struct msg_buffer {
+    long msg_type;
+    char msg_text[100];
+} message;
+
+int main() {
+    key_t key;
+    int msgid;
+
+    // Generate unique key
+    key = ftok("msg_queue",65);
+
+    // Get the message queue id
+    msgid = msgget(key, 0666 | IPC_CREAT);
+
+    cout<<msgid<<endl;
+
+    // Main loop for chatting
+    while (true) {
+        // Receive message from other user
+        msgrcv(msgid, &message, sizeof(message), 1, 0);
+
+        // Display the message
+        cout << "Process 1: " << message.msg_text << endl;
+
+        // Send message to other user
+        cout << "Process 2: ";
+        cin.getline(message.msg_text, 100);
+        message.msg_type = 2;
+        msgsnd(msgid, &message, sizeof(message), 0);
+
+        // Check if user wants to exit
+        if (strcmp(message.msg_text, "exit") == 0) {
+            break;
+        }
+    }
+
+    return 0;
+}
+
+
+
+/*
+commands to run
+// open 2 terminals for 2 processes
+
+gcc -o process1 process1.c
+./process1
+
+gcc -o process2 process2.c
+./process2
+
+*/
+
+
+
+# till here there are 50 codes from now on there are 55 codes
+
+Q 51. Write a program for TCP to demonstrate the socket system calls in c/python
+
+Client
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#define PORT 8080
+#define BUFFER_SIZE 1024
+
+int main() {
+    int sock = 0, valread;
+    struct sockaddr_in serv_addr;
+    char *message = "Hello from client";
+    char buffer[BUFFER_SIZE] = {0};
+
+    // Create socket file descriptor
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        perror("Socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
+
+    // Convert IPv4 and IPv6 addresses from text to binary form
+    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+        perror("Invalid address/ Address not supported");
+        exit(EXIT_FAILURE);
+    }
+
+    // Connect to server
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        perror("Connection failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Send message to server
+    send(sock, message, strlen(message), 0);
+    printf("Hello message sent to server\n");
+
+    // Read message from server
+    valread = read(sock, buffer, BUFFER_SIZE);
+    printf("Message from server: %s\n", buffer);
+
+    return 0;
+}
+
+server
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+#define PORT 8080
+#define BUFFER_SIZE 1024
+
+int main() {
+    int server_fd, new_socket, valread;
+    struct sockaddr_in address;
+    int addrlen = sizeof(address);
+    char buffer[BUFFER_SIZE] = {0};
+    char *message = "Hello from server";
+
+    // Create socket file descriptor
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        perror("Socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
+
+    // Bind the socket to the address and port
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+        perror("Bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Listen for incoming connections
+    if (listen(server_fd, 3) < 0) {
+        perror("Listen failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Accept the incoming connection
+    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
+        perror("Accept failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Read message from client
+    valread = read(new_socket, buffer, BUFFER_SIZE);
+    printf("Message from client: %s\n", buffer);
+
+    // Send message to client
+    send(new_socket, message, strlen(message), 0);
+    printf("Hello message sent to client\n");
+
+    return 0;
+}
+
+
+
+
+
+
+
+Q 52.Write a program for UDP to demonstrate the socket system calls in c/python
+
+Client
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+#define PORT 12345
+#define MAXLINE 1024
+
+int main() {
+    int sockfd;
+    char buffer[MAXLINE];
+    struct sockaddr_in servaddr;
+
+    // Creating socket file descriptor
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    memset(&servaddr, 0, sizeof(servaddr));
+
+    // Filling server information
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(PORT);
+    servaddr.sin_addr.s_addr = INADDR_ANY;
+
+    while (1) {
+        printf("Enter message: ");
+        fgets(buffer, MAXLINE, stdin);
+
+        sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&servaddr, sizeof(servaddr));
+        printf("Message sent.\n");
+
+        int n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, NULL, NULL);
+        buffer[n] = '\0';
+        printf("Server : %s\n", buffer);
+    }
+
+    close(sockfd);
+    return 0;
+}
+
+Server
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+#define PORT 12345
+#define MAXLINE 1024
+
+int main() {
+    int sockfd;
+    char buffer[MAXLINE];
+    struct sockaddr_in servaddr, cliaddr;
+
+    // Creating socket file descriptor
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    memset(&servaddr, 0, sizeof(servaddr));
+    memset(&cliaddr, 0, sizeof(cliaddr));
+
+    // Filling server information
+    servaddr.sin_family = AF_INET; // IPv4
+    servaddr.sin_addr.s_addr = INADDR_ANY;
+    servaddr.sin_port = htons(PORT);
+
+    // Binding socket with server address
+    if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Server listening on port %d\n", PORT);
+
+    while (1) {
+        int len, n;
+
+        len = sizeof(cliaddr);  //len is value/resuslt
+
+        n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *)&cliaddr, &len);
+        buffer[n] = '\0';
+        printf("Client : %s\n", buffer);
+        sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
+        printf("Message sent to client.\n");
+    }
+
+    return 0;
+}
+
+
+53.1 Implement echo server using TCP in iterative logic.
+
+Client
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+#define PORT 8080
+#define BUFFER_SIZE 1024
+
+int main() {
+    int sock = 0;
+    struct sockaddr_in serv_addr;
+    char buffer[BUFFER_SIZE] = {0};
+    const char *message = "Hello from client";
+
+    // Create socket
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        perror("Socket creation error");
+        exit(EXIT_FAILURE);
+    }
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
+
+    // Convert IPv4 and IPv6 addresses from text to binary form
+    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+        perror("Invalid address/ Address not supported");
+        exit(EXIT_FAILURE);
+    }
+
+    // Connect to server
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        perror("Connection failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Send message to server
+    send(sock, message, strlen(message), 0);
+    printf("Message sent to server: %s\n", message);
+
+    // Read message from server
+    read(sock, buffer, BUFFER_SIZE);
+    printf("Message from server: %s\n", buffer);
+
+    return 0;
+}
+
+
+Server
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+#define PORT 8080
+#define MAX_CONNECTIONS 5
+#define BUFFER_SIZE 1024
+
+int main() {
+    int server_fd, new_socket;
+    struct sockaddr_in address;
+    int opt = 1;
+    int addrlen = sizeof(address);
+    char buffer[BUFFER_SIZE] = {0};
+    const char *message = "Echo from server: ";
+
+    // Creating socket file descriptor
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Set socket options to reuse address and port
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize address struct
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
+
+    // Bind socket to address
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Listen for incoming connections
+    if (listen(server_fd, MAX_CONNECTIONS) < 0) {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
+
+    // Accept incoming connections and handle them iteratively
+    while (1) {
+        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
+            perror("accept");
+            exit(EXIT_FAILURE);
+        }
+
+        // Read data from client
+        read(new_socket, buffer, BUFFER_SIZE);
+
+        // Send data back to client
+        send(new_socket, message, strlen(message), 0);
+        send(new_socket, buffer, strlen(buffer), 0);
+        printf("Message sent to client: %s\n", buffer);
+
+        // Clear the buffer
+        memset(buffer, 0, sizeof(buffer));
+
+        // Close the socket
+        close(new_socket);
+    }
+    return 0;
+}
+
+53.2 Implement echo server using TCP in concurrent logic.
+
+Client
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <pthread.h>
+
+#define BUFFER_SIZE 1024
+
+// Function to handle sending and receiving data from server
+void *handle_server(void *arg) {
+    int client_socket = *((int *)arg);
+    char buffer[BUFFER_SIZE];
+
+    while (1) {
+        // Receive data from server
+        int bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0);
+        if (bytes_received <= 0) {
+            printf("Server disconnected\n");
+            close(client_socket);
+            pthread_exit(NULL);
+        }
+
+        // Print received data
+        printf("Server: %.*s", bytes_received, buffer);
+    }
+}
+
+int main() {
+    int client_socket;
+    struct sockaddr_in server_address;
+    pthread_t tid;
+
+    // Create TCP socket
+    client_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (client_socket == -1) {
+        perror("Socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize server address
+    memset(&server_address, 0, sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = inet_addr("127.0.0.1");
+    server_address.sin_port = htons(9999);
+
+    // Connect to server
+    if (connect(client_socket, (struct sockaddr *)&server_address, sizeof(server_address)) == -1) {
+        perror("Connection failed");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Connected to server\n");
+
+    // Create a new thread to handle receiving data from server
+    if (pthread_create(&tid, NULL, handle_server, (void *)&client_socket) != 0) {
+        perror("Thread creation failed");
+        close(client_socket);
+        exit(EXIT_FAILURE);
+    }
+
+    // Main loop to send data to server
+    char input_buffer[BUFFER_SIZE];
+    while (1) {
+        fgets(input_buffer, BUFFER_SIZE, stdin);
+        if (strcmp(input_buffer, "disconnect\n") == 0) {
+            printf("Disconnecting from server\n");
+            close(client_socket);
+            break;
+        }
+        // Send data to server
+        send(client_socket, input_buffer, strlen(input_buffer), 0);
+    }
+
+    return 0;
+}
+
+Server
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <pthread.h>
+
+#define MAX_CLIENTS 5
+#define BUFFER_SIZE 1024
+
+// Structure to hold client information
+typedef struct {
+    int client_socket;
+    struct sockaddr_in client_address;
+} client_info;
+
+// Function to handle client connections
+void *handle_client(void *arg) {
+    client_info *client = (client_info *)arg;
+    char buffer[BUFFER_SIZE];
+
+    printf("Accepted connection from %s:%d\n", inet_ntoa(client->client_address.sin_addr), ntohs(client->client_address.sin_port));
+
+    while (1) {
+        // Receive data from client
+        int bytes_received = recv(client->client_socket, buffer, BUFFER_SIZE, 0);
+        if (bytes_received <= 0) {
+            printf("Connection from %s:%d closed\n", inet_ntoa(client->client_address.sin_addr), ntohs(client->client_address.sin_port));
+            close(client->client_socket);
+            free(client);
+            pthread_exit(NULL);
+        }
+
+        // Echo back the received data
+        send(client->client_socket, buffer, bytes_received, 0);
+    }
+}
+
+int main() {
+    int server_socket, client_socket;
+    struct sockaddr_in server_address, client_address;
+    pthread_t tid[MAX_CLIENTS];
+    int client_count = 0;
+
+    // Create TCP socket
+    server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_socket == -1) {
+        perror("Socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize server address
+    memset(&server_address, 0, sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+    server_address.sin_port = htons(9999);
+
+    // Bind socket to address
+    if (bind(server_socket, (struct sockaddr *)&server_address, sizeof(server_address)) == -1) {
+        perror("Bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Listen for incoming connections
+    if (listen(server_socket, MAX_CLIENTS) == -1) {
+        perror("Listen failed");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Server listening on port 9999...\n");
+
+    while (1) {
+        // Accept incoming connection
+        socklen_t client_address_len = sizeof(client_address);
+        client_socket = accept(server_socket, (struct sockaddr *)&client_address, &client_address_len);
+        if (client_socket == -1) {
+            perror("Accept failed");
+            continue;
+        }
+
+        // Create a new thread to handle client
+        client_info *client = (client_info *)malloc(sizeof(client_info));
+        if (client == NULL) {
+            perror("Memory allocation failed");
+            continue;
+        }
+        client->client_socket = client_socket;
+        client->client_address = client_address;
+        if (pthread_create(&tid[client_count++], NULL, handle_client, (void *)client) != 0) {
+            perror("Thread creation failed");
+            free(client);
+            continue;
+        }
+
+        // Limit the number of clients
+        if (client_count >= MAX_CLIENTS) {
+            printf("Maximum number of clients reached. No longer accepting connections.\n");
+            break;
+        }
+    }
+
+    // Wait for all threads to finish
+    for (int i = 0; i < client_count; i++) {
+        pthread_join(tid[i], NULL);
+    }
+
+    // Close server socket
+    close(server_socket);
+
+    return 0;
+}
+
+
+
+54.1 Implement echo server using UDP in iterative logic.
+
+Client
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
+#define PORT 9999
+#define BUFFER_SIZE 4096
+
+int main() {
+    struct sockaddr_in server_addr;
+    int sockfd;
+    char buffer[BUFFER_SIZE];
+    socklen_t server_len;
+
+    // Create a UDP socket
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize server address structure
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(PORT);
+
+    while (1) {
+        printf("Enter message to send (type 'exit' to quit): ");
+        fgets(buffer, BUFFER_SIZE, stdin);
+
+        // Remove newline character from the input
+        buffer[strcspn(buffer, "\n")] = 0;
+
+        if (strcmp(buffer, "exit") == 0) {
+            break;
+        }
+
+        // Send message to the server
+        server_len = sizeof(server_addr);
+        if (sendto(sockfd, buffer, strlen(buffer), 0, (struct sockaddr*)&server_addr, server_len) < 0) {
+            perror("sendto failed");
+            exit(EXIT_FAILURE);
+        }
+
+        // Receive response from server
+        if (recvfrom(sockfd, buffer, BUFFER_SIZE, 0, NULL, NULL) < 0) {
+            perror("recvfrom failed");
+            exit(EXIT_FAILURE);
+        }
+
+        printf("Received response: %s\n", buffer);
+    }
+
+    // Close the socket
+    close(sockfd);
+
+    return 0;
+}
+
+
+
+
+Server
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
+#define PORT 9999
+#define BUFFER_SIZE 4096
+
+int main() {
+    struct sockaddr_in server_addr, client_addr;
+    int sockfd, client_len, recv_len;
+    char buffer[BUFFER_SIZE];
+
+    // Create a UDP socket
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize server address structure
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(PORT);
+
+    // Bind the socket
+    if (bind(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Server is running on port %d\n", PORT);
+
+    while (1) {
+        printf("\nWaiting to receive message...\n");
+
+        // Receive message from client
+        client_len = sizeof(client_addr);
+        if ((recv_len = recvfrom(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr*)&client_addr, &client_len)) < 0) {
+            perror("recvfrom failed");
+            exit(EXIT_FAILURE);
+        }
+
+        printf("Received %d bytes from %s:%d\n", recv_len, inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+        printf("Data received: %s\n", buffer);
+
+        // Echo back the received data
+        if (sendto(sockfd, buffer, recv_len, 0, (struct sockaddr*)&client_addr, client_len) < 0) {
+            perror("sendto failed");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    return 0;
+}
+
+
+54.2 Implement echo server using UDP in concurrent logic.
+
+Client
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+#define PORT 8080
+#define MAXLINE 1024
+
+int main() {
+    int sockfd;
+    char buffer[MAXLINE];
+    struct sockaddr_in servaddr;
+
+    // Creating socket file descriptor
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    memset(&servaddr, 0, sizeof(servaddr));
+
+    // Filling server information
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(PORT);
+    servaddr.sin_addr.s_addr = INADDR_ANY;
+
+    int n, len;
+
+    while (1) {
+        printf("Enter message: ");
+        fgets(buffer, MAXLINE, stdin);
+        sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&servaddr, sizeof(servaddr));
+        n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *)&servaddr, &len);
+        buffer[n] = '\0';
+        printf("Server : %s\n", buffer);
+    }
+
+    close(sockfd);
+    return 0;
+}
+
+Server
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+#define PORT 8080
+#define MAXLINE 1024
+
+int main() {
+    int sockfd;
+    char buffer[MAXLINE];
+    struct sockaddr_in servaddr, cliaddr;
+
+    // Creating socket file descriptor
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    memset(&servaddr, 0, sizeof(servaddr));
+    memset(&cliaddr, 0, sizeof(cliaddr));
+
+    // Filling server information
+    servaddr.sin_family = AF_INET; // IPv4
+    servaddr.sin_addr.s_addr = INADDR_ANY;
+    servaddr.sin_port = htons(PORT);
+
+    // Bind the socket with the server address
+    if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Server is listening on port %d\n", PORT);
+
+    int len, n;
+    len = sizeof(cliaddr);  //len is value/resuslt
+
+    while (1) {
+        n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, (struct sockaddr *)&cliaddr, &len);
+        buffer[n] = '\0';
+        printf("Client : %s\n", buffer);
+        sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
+    }
+
+    return 0;
+}
+
+
+
+
+// assignment 55
+
+// Write a program using PIPE, to Send data from parent to child over a pipe (unnamed pipe). #include <iostream>
+#include <unistd.h>
+
+using namespace std;
+
+int main() {
+    int pipefd[2];
+    pid_t pid;
+    char buffer[20];
+
+    if (pipe(pipefd) == -1) {
+        perror("pipe");
+        return 1;
+    }
+
+    pid = fork();
+
+    if (pid == -1) {
+        perror("fork");
+        return 1;
+    }
+
+    if (pid == 0) { // Child process
+        close(pipefd[1]); 
+
+        read(pipefd[0], buffer, sizeof(buffer));
+        cout << "Child process received: " << buffer << endl;
+
+        close(pipefd[0]);
+    } else { // Parent process
+
+        string message = "Hello from parent!";
+        write(pipefd[1], message.c_str(), message.length() + 1);
+
+        close(pipefd[1]);
+    }
+
+    return 0;
+}
+
+
+
+
+
+//56. Write a program using FIFO, to Send data from parent to child over a pipe. (named pipe)
+#include <iostream>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <string>
+
+using namespace std;
+
+int main() {
+    const char* fifoName = "/tmp/myfifo";
+
+    mkfifo(fifoName, 0666);
+
+    pid_t pid = vfork();
+    if (pid == -1) {
+        perror("fork");
+        return 1;
+    }
+
+    if (pid == 0) { // Child process
+
+        int fd = open(fifoName, O_RDONLY);
+        if (fd == -1) {
+            perror("open");
+            return 1;
+        }
+        char buffer[256];
+        int bytesRead = read(fd, buffer, sizeof(buffer));
+        if (bytesRead == -1) {
+            perror("read");
+            return 1;
+        }
+
+        cout << "Child process received: " << buffer << endl;
+        close(fd);
+
+    } else { // Parent process
+        int fd = open(fifoName, O_WRONLY);
+        if (fd == -1) {
+            perror("open");
+            return 1;
+        }
+
+        string message = "Hello from parent!";
+        int bytesWritten = write(fd, message.c_str(), message.length() + 1);
+        if (bytesWritten == -1) {
+            perror("write");
+            return 1;
+        }
+
+        close(fd);
+        wait(NULL);
+    }
+
+    unlink(fifoName);
+    return 0;
+}
+
+
+
+57. Write a program using PIPE, to Send file from parent to child over a pipe.
+(unnamed pipe )#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+int main() {
+    const char* fifoName = "/tmp/myfifo";
+    const char* fileName = "input.txt";
+    const size_t bufferSize = 4096; // 4KB buffer size
+
+    // Create the FIFO (named pipe)
+    mkfifo(fifoName, 0666);
+
+    pid_t pid = fork();
+    if (pid == -1) {
+        perror("fork");
+        return 1;
+    }
+
+    if (pid == 0) { // Child process
+        // Open the FIFO for reading
+        int fd = open(fifoName, O_RDONLY);
+        if (fd == -1) {
+            perror("open");
+            return 1;
+        }
+
+        // Create a new file to store the received data
+        FILE* file = fopen("output.txt", "w");
+        if (!file) {
+            perror("fopen");
+            return 1;
+        }
+
+        // Read from the FIFO and write to the file
+        char buffer[bufferSize];
+        size_t bytesRead;
+        while ((bytesRead = read(fd, buffer, bufferSize)) > 0) {
+            fwrite(buffer, 1, bytesRead, file);
+        }
+
+        // Close the file and FIFO
+        fclose(file);
+        close(fd);
+    } else { // Parent process
+        // Open the FIFO for writing
+        int fd = open(fifoName, O_WRONLY);
+        if (fd == -1) {
+            perror("open");
+            return 1;
+        }
+
+        // Open the file to be sent
+        FILE* file = fopen(fileName, "r");
+        if (!file) {
+            perror("fopen");
+            return 1;
+        }
+
+        // Read from the file and write to the FIFO
+        char buffer[bufferSize];
+        size_t bytesRead;
+        while ((bytesRead = fread(buffer, 1, bufferSize, file)) > 0) {
+            write(fd, buffer, bytesRead);
+        }
+
+        // Close the file and FIFO
+        fclose(file);
+        close(fd);
+
+        // Wait for the child process to finish
+        wait(NULL);
+    }
+
+    // Remove the FIFO
+    unlink(fifoName);
+
+    return 0;
+}
+
+
+
+58. Write a program using FIFO, to Send file from parent to child over a pipe. (named
+pipe)
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
+int main() {
+    const char* fifoName = "/tmp/myfifo";
+    const char* fileName = "input.txt";
+    const size_t bufferSize = 4096; // 4KB buffer size
+    mkfifo(fifoName, 0666);
+    pid_t pid = fork();
+    if (pid == -1) {
+        perror("fork");
+        return 1;
+    }
+
+    if (pid == 0) { // Child process
+        int fd = open(fifoName, O_WRONLY);
+        if (fd == -1) {
+            perror("open");
+            return 1;
+        }
+        FILE* file = fopen(fileName, "r");
+        if (!file) {
+            perror("fopen");
+            return 1;
+        }
+        char buffer[bufferSize];
+        size_t bytesRead;
+        while ((bytesRead = fread(buffer, 1, bufferSize, file)) > 0) {
+            write(fd, buffer, bytesRead);
+        }
+        fclose(file);
+        close(fd);
+    } else { // Parent process
+        int fd = open(fifoName, O_RDONLY);
+        if (fd == -1) {
+            perror("open");
+            return 1;
+        }
+        FILE* file = fopen("output.txt", "w");
+        if (!file) {
+            perror("fopen");
+            return 1;
+        }
+        char buffer[bufferSize];
+        size_t bytesRead;
+        while ((bytesRead = read(fd, buffer, bufferSize)) > 0) {
+            fwrite(buffer, 1, bytesRead, file);
+        }
+        fclose(file);
+        close(fd);
+        wait(NULL);
+    }
+    unlink(fifoName);
+    return 0;
+}
+
+
+59. Write a program using PIPE, to convert uppercase to lowercase filter to read command/
+from file
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <ctype.h>
+
+int main() {
+    int fd[2];
+    pid_t pid;
+    char buffer[1024];
+
+    if (pipe(fd) == -1) {
+        perror("pipe");
+        exit(EXIT_FAILURE);
+    }
+    pid = fork();
+    if (pid == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+
+    if (pid == 0) {  // Child process
+        close(fd[1]); // Close write end of the pipe
+        dup2(fd[0], 0);
+        close(fd[0]); // Close read end of the pipe
+        char c;
+        while (read(0, &c, 1) > 0) {
+            putchar(tolower(c));
+        }
+        return 0;
+    } else {  // Parent process
+        close(fd[0]); // Close read end of the pipe
+        FILE *file = fopen("input.txt", "r");
+        if (!file) {
+            perror("fopen");
+            exit(EXIT_FAILURE);
+        }
+        size_t bytesRead;
+        while ((bytesRead = fread(buffer, 1, sizeof(buffer), file)) > 0) {
+            write(fd[1], buffer, bytesRead);
+        }
+        fclose(file);
+        close(fd[1]); // Close write end of the pipe
+        wait(NULL);
+
+        return 0;
+    }
+}
+
+
+60.Write a program to illustrate the semaphore concept. Use fork so that 2 process running
+simultaneously and communicate via semaphore. (give diff between sem.h/semaphore.h)
+
+#include <iostream>
+#include <unistd.h>
+#include <semaphore.h>
+#include <sys/wait.h>
+
+using namespace std;
+
+int main() {
+    // Create a semaphore
+    sem_t semaphore;
+    sem_init(&semaphore, 0, 1); // Initialize the semaphore with initial value 1
+
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        cerr << "Failed to fork." << endl;
+        return 1;
+    } else if (pid == 0) {
+        // Child process
+        sem_wait(&semaphore); // Wait for the semaphore
+        cout << "Child process is running." << endl;
+        sem_post(&semaphore); // Release the semaphore
+    } else {
+        sem_wait(&semaphore); // Wait for the semaphore
+        cout << "Parent process is running." << endl;
+        sem_post(&semaphore); // Release the semaphore
+        wait(NULL); // Wait for the child process to finish
+    }
+
+    // Destroy the semaphore
+    sem_destroy(&semaphore);
+
+    return 0;
+}
+
+
+
+61. Write 3 programs separately, 1st program will initialize the semaphore and display the
+semaphore ID. 2nd program will perform the P operation and print message accordingly. 3rd
+program will perform the V operation print the message accordingly for the same
+semaphore declared in the 1st program.
+
+
+
+program1: nto run process 
+
+Program to initialize the semaphore and display its ID:
+
+#include <iostream>
+#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+
+using namespace std;
+
+int main() {
+    // Create a key for the semaphore
+    key_t key = ftok("/tmp", 'S');
+    if (key == -1) {
+        perror("ftok");
+        return 1;
+    }
+
+    // Create the semaphore
+    int semaphoreID = semget(key, 1, IPC_CREAT | 0666);
+    if (semaphoreID == -1) {
+        perror("semget");
+        return 1;
+    }
+
+    cout << "Semaphore created with ID: " << semaphoreID << endl;
+
+    return 0;
+}
+
+Program to perform the "P" operation (wait) on the semaphore:
+cpp
+Copy code
+#include <iostream>
+#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+
+using namespace std;
+
+int main() {
+    // Get the key for the semaphore
+    key_t key = ftok("/tmp", 'S');
+    if (key == -1) {
+        perror("ftok");
+        return 1;
+    }
+
+    // Get the semaphore ID
+    int semaphoreID = semget(key, 1, 0);
+    if (semaphoreID == -1) {
+        perror("semget");
+        return 1;
+    }
+
+    // Perform the P operation
+    struct sembuf operation;
+    operation.sem_num = 0;  // Semaphore index
+    operation.sem_op = -1;  // P operation
+    operation.sem_flg = 0;  // No flags
+
+    if (semop(semaphoreID, &operation, 1) == -1) {
+        perror("semop P");
+        return 1;
+    }
+
+    cout << "P operation performed successfully." << endl;
+
+    return 0;
+}
+
+
+perform v operation
+
+#include <iostream>
+#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+
+using namespace std;
+
+int main() {
+    // Get the key for the semaphore
+    key_t key = ftok("/tmp", 'S');
+    if (key == -1) {
+        perror("ftok");
+        return 1;
+    }
+
+    // Get the semaphore ID
+    int semaphoreID = semget(key, 1, 0);
+    if (semaphoreID == -1) {
+        perror("semget");
+        return 1;
+    }
+
+    // Perform the V operation
+    struct sembuf operation;
+    operation.sem_num = 0;  // Semaphore index
+    operation.sem_op = 1;   // V operation
+    operation.sem_flg = 0;  // No flags
+
+    if (semop(semaphoreID, &operation, 1) == -1) {
+        perror("semop V");
+        return 1;
+    }
+
+    cout << "V operation performed successfully." << endl;
+
+    return 0;
+}
+ command:g++ initialize_semaphore.cpp -o initialize_semaphore
+g++ perform_P_operation.cpp -o perform_P_operation
+g++ perform_V_operation.cpp -o perform_V_operation
+
+execution:
+./initialize_semaphore
+./perform_P_operation
+./perform_V_operation
+
+
+
+62. Write a program to demonstrate the lockf system call for locking.
+
+#include <iostream>
+#include <unistd.h>
+#include <fcntl.h>
+#include <cstring>
+#include <cstdlib>
+
+using namespace std;
+
+int main() {
+    // Open a file
+    int fd = open("example.txt", O_RDWR | O_CREAT, 0644);
+    if (fd == -1) {
+        perror("open");
+        return 1;
+    }
+
+    // Lock the file
+    if (lockf(fd, F_LOCK, 0) == -1) {
+        perror("lockf");
+        close(fd);
+        return 1;
+    }
+
+    // Write to the locked file
+    const char *message = "This is a locked file.";
+    if (write(fd, message, strlen(message)) == -1) {
+        perror("write");
+        close(fd);
+        return 1;
+    }
+
+    cout << "File locked and written successfully." << endl;
+
+    // Unlock the file
+    if (lockf(fd, F_ULOCK, 0) == -1) {
+        perror("lockf");
+        close(fd);
+        return 1;
+    }
+
+    cout << "File unlocked." << endl;
+
+    // Close the file
+    close(fd);
+
+    return 0;
+}
+
+
+63. Write a program to demonstrate the flock system call for locking.
+
+
+#include <iostream>
+#include <unistd.h>
+#include <fcntl.h>
+#include <cstring>
+#include <cstdlib>
+
+using namespace std;
+
+int main() {
+    // Open a file
+    int fd = open("example.txt", O_RDWR | O_CREAT, 0644);
+    if (fd == -1) {
+        perror("open");
+        return 1;
+    }
+
+    // Lock the file
+    struct flock fl;
+    fl.l_type = F_WRLCK;  // Exclusive write lock
+    fl.l_whence = SEEK_SET;
+    fl.l_start = 0;  // Start from the beginning of the file
+    fl.l_len = 0;    // Lock the entire file
+
+    if (fcntl(fd, F_SETLKW, &fl) == -1) {
+        perror("fcntl");
+        close(fd);
+        return 1;
+    }
+
+    cout << "File locked." << endl;
+
+    // Write to the locked file
+    const char *message = "This is a locked file.";
+    if (write(fd, message, strlen(message)) == -1) {
+        perror("write");
+        close(fd);
+        return 1;
+    }
+
+    cout << "Message written to the locked file." << endl;
+
+    // Unlock the file
+    fl.l_type = F_UNLCK;
+
+    if (fcntl(fd, F_SETLK, &fl) == -1) {
+        perror("fcntl");
+        close(fd);
+        return 1;
+    }
+
+    cout << "File unlocked." << endl;
+
+    // Close the file
+    close(fd);
+
+    return 0;
+}
+
+
+
+
+
+64. Using FIFO as named pipe use read and write system calls to establish communication
+(IPC) between two ends.
+// using fifo as named pipe use read and write system calls to establish communication (IPC) between two ends
+
+64a.c
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+int main(){
+    int fd;
+    char *message="Hello world";
+    char *fifo = "/tmp/myfifo";
+
+    
+    mkfifo(fifo,0666);
+
+    fd = open(fifo,O_WRONLY);
+    
+    write(fd,message,strlen(message));
+
+    close(fd);
+    return 0;
+    
+}
+
+64b.c
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+int main(){
+    int fd;
+    char buffer[100];
+    char *fifo = "/tmp/myfifo";
+    fd = open(fifo, O_RDONLY);
+    read(fd,buffer,sizeof(buffer));
+
+    printf("%s",buffer);
+
+    close(fd);
+    unlink(fifo);
+    return 0;
+}
+
+65 write shell script with FIFO/mknod (named pipe) us for communication (IPC)
+
+sender
+#!/bin/bash
+
+if [ ! -p $PIPE ]; then
+    mkfifo $PIPE
+fi
+
+
+while true
+do
+    read -p "Enter a message: " message
+    echo "$message" > mypipe
+    if read line < mypipe; then
+        echo "Received: $line"
+    fi
+done
+
+
+
+
+reciever
+
+#!/bin/bash
+
+
+while true
+do
+    if read line < mypipe; then
+        echo "Received: $line"
+    fi
+    read -p "Enter a message: " message
+    echo "$message" > mypipe
+done
+
+
+Both scripts first define a named pipe (FIFO) path (/tmp/my_fifo).
+They check if the named pipe already exists; if not, they create it using mkfifo.
+The sender script (sender.sh) checks if the receiver script (receiver.sh) is running. If not, it prompts the user to start the receiver script first.
+The sender script continuously reads input from the user and sends it to the named pipe.
+The receiver script (receiver.sh) continuously listens for messages from the named pipe and displays them.
+To use these scripts:
+
+Save the sender script as sender.sh and the receiver script as receiver.sh.
+Make both scripts executable: chmod +x sender.sh receiver.sh.
+Open two terminal windows or tabs.
+In one terminal, run the receiver script: ./receiver.sh.
+In the other terminal, run the sender script: ./sender.sh.
+Enter messages in the sender terminal, and they should be received and displayed by the receiver.
+
+
+
+
+
+66 write prog using FIFO/mknod (named pipe)/unmanned pipe for uppercase to lowercase to
+conversion
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/time.h>
+#include <ctype.h>
+
+int main(){
+    pid_t pid;
+    int fd[2];
+    char buffer[100];
+    
+    if(pipe(fd)==-1){
+        perror("pipe");
+        _exit(1);
+    }
+    pid = fork();
+    if(pid==-1){
+        perror("fork");
+        _exit(1);
+    }else if(pid==0){
+        close(fd[1]);
+        int n = read(fd[0],buffer,100);
+        close(fd[0]);
+        for(int i=0;i<n;i++) buffer[i]=tolower(buffer[i]);
+        printf("Child process received: %s\n", buffer);
+    }else {
+        close(fd[0]);
+        char str[]="HELLO WORLD";
+        write(fd[1],str,sizeof(str));
+        close(fd[1]);
+        wait(NULL);
+        printf("Input is : %s\n",str);
+
+    }
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
